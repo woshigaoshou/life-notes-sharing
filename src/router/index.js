@@ -14,6 +14,28 @@ const routes = [
     path: '/index',
     name: 'Index',
     component: _import('Index'),
+    children: [
+      {
+        path: '/home',
+        name: 'home',
+        component: _import('home/home'),
+      },
+      {
+        path: '/discover',
+        name: 'discover',
+        component: _import('discover/discover'),
+      },
+      {
+        path: '/message',
+        name: 'message',
+        component: _import('message/message'),
+      },
+      {
+        path: '/mine',
+        name: 'mine',
+        component: _import('mine/mine'),
+      },
+    ],
   }
 ]
 
