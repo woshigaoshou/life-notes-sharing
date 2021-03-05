@@ -2,9 +2,18 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
+
+
 import Antd from 'ant-design-vue'
 import 'ant-design-vue/dist/antd.css'
+import './css/icon-font/iconfont.css';
+import scroll from './components/scroll';
+
 Vue.use(Antd)
+
+Vue.component('scroll', scroll);
+
+Vue.prototype.$bus = new Vue();
 
 Vue.config.productionTip = false
 

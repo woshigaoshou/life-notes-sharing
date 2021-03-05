@@ -16,22 +16,26 @@ const routes = [
     component: _import('Index'),
     children: [
       {
-        path: '/home',
+        path: '/',
+        redirect: '/index/home',
+      },
+      {
+        path: 'home',
         name: 'home',
         component: _import('home/home'),
       },
       {
-        path: '/discover',
+        path: 'discover',
         name: 'discover',
         component: _import('discover/discover'),
       },
       {
-        path: '/message',
+        path: 'message',
         name: 'message',
         component: _import('message/message'),
       },
       {
-        path: '/mine',
+        path: 'mine',
         name: 'mine',
         component: _import('mine/mine'),
       },

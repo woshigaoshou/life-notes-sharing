@@ -1,12 +1,13 @@
 <template>
-  <div class="NavBar">
+  <div class="navbar">
     <div
-      class="NavBar-item"
+      class="navbar-item"
       v-for="(item,index) in nav"
       :key="index"
       :class="{active: currentIndex === index} "
       @click="itemClick(index)"
     >
+      <i class="iconfont" :class="`icon${nav[index]['iconfont']}`"></i>
       <router-link :to="`/index${nav[index]['path']}`" class="title">{{ item.title }}</router-link>
     </div>
     <!-- <slot></slot> -->
@@ -24,49 +25,62 @@ export default {
   },
   data() {
     return {
-      // currentIndex: this.path.indexOf(this.$route.path.slice(5))
+  
     };
   },
   computed: {
     currentIndex() {
-      const index = this.nav.findIndex(item => item.path === this.$route.path);
+      const index = this.nav.findIndex(item => this.$route.path.indexOf(item.path) !== -1);
       return index === -1 ? 0 : index; //读取属性时默认值为该值
-      // return this.currentIndex;
-      // console.log(index);
     }
   },
   methods: {
     itemClick(index) {
-      // this.currentIndex = index;
-      // console.log(this.currentIndex);
-      // this.$router.replace(this.path[index]);
       this.$emit("itemClick", this.nav[index], index);
     }
   }
 };
 </script>
-<style scoped>
-.NavBar {
-  height: 3vh;
+<style lang="scss" scoped>
+@import '@/css/theme.scss';
+
+.navbar {
+  width: 100%;
+  height: 10vh;
+  // padding: 0 12vw;
+  padding-bottom: 2vh;
+  margin-top: 1vh;
   display: flex;
   justify-content: space-evenly;
   text-align: center;
-  font-size: 4.5vw;
+  font-size: 3.5vw;
   color: #000;
-  padding: 0 12vw;
-  margin-bottom: 6.5vh;
-  margin-top: 1vh;
-}
-.NavBar .title {
-  width: 100%;
-  height: 100%;
-  padding-bottom: 1.2vh;
-  flex: 1;
-  color: #000;
-  text-decoration: none;
-}
-.active .title {
-  font-weight: 700;
-  border-bottom: 2px solid #fff;
+  background-color: #fff;
+  &-item {
+    padding: 0 4vw;
+    .iconfont {
+      display: block;
+      font-size: $icon-size;
+      color: #333;
+    }
+    .title {
+      width: 100%;
+      height: 100%;
+      padding-bottom: 1.2vh;
+      flex: 1;
+      color: #000;
+      text-decoration: none;
+    }
+  }
+  .active {
+    .title {
+      // font-weight: 700;
+      // border-bottom: 2px solid #fff;
+      color: $theme-color;
+    }
+    .iconfont {
+      color: $theme-color;
+    }
+  }
 }
 </style>

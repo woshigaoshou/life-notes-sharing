@@ -1,7 +1,11 @@
 <template>
-  <div>
+  <div class="home">
+    <scroll>
+      <keep-alive>
+        <router-view />
+      </keep-alive>
+    </scroll>
     <nav-bar :nav="nav" />
-    <router-view></router-view>
   </div>
 </template>
 
@@ -18,18 +22,22 @@ export default {
         {
           title: '首页',
           path: '/home',
+          iconfont: 'zhuye-fill',
         },
         {
           title: '发现',
           path: '/discover',
+          iconfont: 'icon-',
         },
         {
           title: '消息',
           path: '/message',
+          iconfont: 'xiaoxi',
         },
         {
           title: '我的',
           path: '/mine',
+          iconfont: 'wode',
         }
       ],
     };
@@ -47,5 +55,15 @@ export default {
 </script>
 
 <style lang='scss' scoped>
-
+.home {
+  position: relative;
+  height: 100vh;
+  /deep/ .navbar {
+    position: absolute;
+    bottom: -1px;
+  }
+  /deep/ .wrapper {
+    height: 90vh;
+  }
+}
 </style>
