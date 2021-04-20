@@ -5,6 +5,8 @@
 </template>
 
 <script>
+import Api from '@/api';
+
 export default {
   data() {
     return {
@@ -15,7 +17,8 @@ export default {
 
   },
   created() {
-
+    Api.login.login({a: 'a'})
+      .then(res => console.log(res));
   },
   mounted() {
 
