@@ -84,7 +84,6 @@ export default {
             message: '登录成功',
             duration: 2,
           })
-          // 初始化信息存储到vuex
           this.$router.push({ name: 'Index' });
         } else {
           this.$notification.error({

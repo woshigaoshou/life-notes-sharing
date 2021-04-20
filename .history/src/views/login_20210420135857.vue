@@ -84,8 +84,6 @@ export default {
             message: '登录成功',
             duration: 2,
           })
-          // 初始化信息存储到vuex
-          this.$router.push({ name: 'Index' });
         } else {
           this.$notification.error({
             message: '登录失败，请检查账号密码是否无误',
@@ -104,7 +102,7 @@ export default {
         return;
       }
       
-      Api.user.retrieve(this.retrieveForm).then(res => {
+      Api.user.register(this.retrieveForm).then(res => {
         if (res.status === 200) {
           this.$notification.success({
             message: '找回密码成功',

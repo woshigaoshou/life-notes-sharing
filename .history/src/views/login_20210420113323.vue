@@ -8,7 +8,7 @@
     <div class="content" v-show="showModule === 'login'">
       <a-input placeholder="请输入手机号码" v-model="loginForm['phoneNum']" />
       <a-input placeholder="请输入密码" v-model="loginForm['password']" />
-      <p class="tip">登录注册代表同意用户协议和隐私政策<i @click="showModule = 'retrieve'">找回密码</i></p>
+      <p class="tip">登录注册代表同意用户协议和隐私政策<i>找回密码</i></p>
       <a-button class="login-btn" @click="login">同意协议并登录</a-button>
       <a-button class="login-btn" @click="showModule = 'register'">注册账号</a-button>
     </div>
@@ -56,15 +56,15 @@ export default {
       if (keys.some(key => this.registerForm[key] === '')) {
         this.$notification.error({
           message: '必填信息不能为空',
-          duration: 2,
+          duration: 1,
         });
         return;
       }
       
-      Api.user.register(this.registerForm).then(res => {
+      Api.login.register(this.registerForm).then(res => {
         this.$notification.success({
           message: '注册成功',
-          duration: 2,
+          duration: 1,
         })
       });
     },
@@ -73,25 +73,16 @@ export default {
       if (keys.some(key => this.loginForm[key] === '')) {
         this.$notification.error({
           message: '必填信息不能为空',
-          duration: 2,
+          duration: 1,
         });
         return;
       }
       
-      Api.user.login(this.loginForm).then(res => {
-        if (res.status === 200) {
-          this.$notification.success({
-            message: '登录成功',
-            duration: 2,
-          })
-          // 初始化信息存储到vuex
-          this.$router.push({ name: 'Index' });
-        } else {
-          this.$notification.error({
-            message: '登录失败，请检查账号密码是否无误',
-            duration: 2,
-          })
-        }
+      Api.login.login(this.loginForm).then(res => {
+        this.$notification.success({
+          message: '登录成功',
+          duration: 1,
+        })
       });
     },
     retrieve() {
@@ -99,23 +90,16 @@ export default {
       if (keys.some(key => this.retrieveForm[key] === '')) {
         this.$notification.error({
           message: '必填信息不能为空',
-          duration: 2,
+          duration: 1,
         });
         return;
       }
       
-      Api.user.retrieve(this.retrieveForm).then(res => {
-        if (res.status === 200) {
-          this.$notification.success({
-            message: '找回密码成功',
-            duration: 2,
-          })
-        } else {
-          this.$notification.error({
-            message: '原始密码错误',
-            duration: 2,
-          })
-        }
+      Api.login.register(this.retrieveForm).then(res => {
+        this.$notification.success({
+          message: '找回密码成功',
+          duration: 1,
+        })
       });
     },
     back() {
