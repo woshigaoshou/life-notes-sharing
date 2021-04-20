@@ -40,6 +40,11 @@ const routes = [
         component: _import('mine/mine'),
       },
     ],
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: _import('login'),
   }
 ]
 

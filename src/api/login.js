@@ -1,7 +1,7 @@
-import xhr from './xhr';
+import xhr from './api';
 
 export default {
-  login(params) {
-    return xhr.get('/login', params);
+  register(params) {
+    return xhr.post('/save', params);
   },
-};
+}
