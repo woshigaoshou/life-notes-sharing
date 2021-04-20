@@ -46,9 +46,9 @@ export default {
 
 .navbar {
   width: 100%;
-  height: 10vh;
+  height: 9vh;
   // padding: 0 12vw;
-  padding-bottom: 2vh;
+  padding-bottom: 1vh;
   margin-top: 1vh;
   display: flex;
   justify-content: space-evenly;

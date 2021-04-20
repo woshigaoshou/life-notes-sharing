@@ -29,6 +29,7 @@
 
 <script>
 import Api from '@/api';
+import { mapMutations } from 'vuex';
 
 export default {
   data() {
@@ -51,6 +52,9 @@ export default {
     };
   },
   methods: {
+    ...mapMutations('user', {
+      setUserInfo: 'SET_USER_INFO',
+    }),
     register() {
       const keys = Object.keys(this.registerForm);
       if (keys.some(key => this.registerForm[key] === '')) {
@@ -85,7 +89,11 @@ export default {
             duration: 2,
           })
           // 初始化信息存储到vuex
-          this.$router.push({ name: 'Index' });
+          console.log(res);
+          this.setUserInfo(res.data);
+          
+
+          // this.$router.push({ name: 'Index' });
         } else {
           this.$notification.error({
             message: '登录失败，请检查账号密码是否无误',

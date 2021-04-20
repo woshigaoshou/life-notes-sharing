@@ -1,10 +1,10 @@
 <template>
   <div class="home">
-    <scroll>
+    <!-- <scroll> -->
       <keep-alive>
         <router-view />
       </keep-alive>
-    </scroll>
+    <!-- </scroll> -->
     <nav-bar :nav="nav" />
   </div>
 </template>
@@ -60,10 +60,7 @@ export default {
   height: 100vh;
   /deep/ .navbar {
     position: absolute;
-    bottom: -1px;
-  }
-  /deep/ .wrapper {
-    height: 90vh;
+    // bottom: -1px;
   }
 }
 </style>
