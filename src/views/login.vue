@@ -73,10 +73,7 @@ export default {
         this.showModule = 'login';
       });
     },
-    login() {
-      console.log(this.setUserInfo);
-      console.log(222);
-      
+    login() {      
       const keys = Object.keys(this.loginForm);
       if (keys.some(key => this.loginForm[key] === '')) {
         this.$notification.error({
@@ -85,17 +82,14 @@ export default {
         });
         return;
       }
-      console.log(555);
       
       Api.user.login(this.loginForm).then(res => {
-          console.log(res);
 
         if (res.status === 200) {
           this.$notification.success({
             message: '登录成功',
             duration: 2,
           })
-          console.log(333);
           
           const storage = window.localStorage;
           // 初始化信息存储到vuex
