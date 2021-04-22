@@ -75,6 +75,7 @@ export default {
     },
     login() {
       console.log(this.setUserInfo);
+      console.log(222);
       
       const keys = Object.keys(this.loginForm);
       if (keys.some(key => this.loginForm[key] === '')) {
@@ -84,16 +85,22 @@ export default {
         });
         return;
       }
+      console.log(555);
       
       Api.user.login(this.loginForm).then(res => {
+          console.log(res);
+
         if (res.status === 200) {
           this.$notification.success({
             message: '登录成功',
             duration: 2,
           })
+          console.log(333);
+          
           const storage = window.localStorage;
           // 初始化信息存储到vuex
           this.setUserInfo(res.data);
+          storage.removeItem('userInfo');
           storage.setItem('userInfo', JSON.stringify(res.data));          
 
           this.$router.push({ name: 'Index' });
@@ -167,7 +174,7 @@ export default {
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
     // background-color: #fff;
-    [class^=ant-input] + [class^=ant-input] {
+    & > [class^=ant-input] + [class^=ant-input] {
       margin-top: 3vh;
     }
     .tip {

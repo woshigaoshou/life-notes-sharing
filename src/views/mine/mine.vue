@@ -2,9 +2,9 @@
   <div class="mine">
     <div class="header">
       <div class="info">
-        <div class="profile-photo">
-          <img src="../../assets/login.jpg" @click="selectPhoto">
-          <input type="file" ref="upload" @change="uploadProfilePhoto">
+        <div class="avatar">
+          <img :src="user.avatar || '../../assets/avatar.jpg'" @click="selectPhoto">
+          <input type="file" ref="upload" @change="uploadAvatar">
         </div>
         <div class="user-info">
           <p>{{ user.name }}</p>
@@ -35,7 +35,7 @@
 
 <script>
 import Api from '@/api';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapMutations } from 'vuex';
 
 export default {
   data() {
@@ -50,17 +50,21 @@ export default {
     })
   },
   methods: {
+    ...mapMutations('user', {
+      setAvatar: 'UPDATE_USER_AVATAR',
+    }),
     tabClick(index) {
       this.activeIndex = index;
     },
-    uploadProfilePhoto() {
-      const params = {
-        name: this.user.name,
-        phoneNum: this.user.phoneNum,
-      };
-      Api.user.uploadProfilePhoto(params).then(res => {
+    uploadAvatar(e) {
+      const fileData = e.target.files[0];
+      const params = new FormData();
+      params.append('file', fileData);
+      params.append('phoneNum', this.user.phoneNum);
+      
+      Api.user.uploadAvatar(params).then(res => {
         console.log(res);
-        
+        this.setAvatar(res.avatar);
       });
     },
     selectPhoto() {
@@ -89,7 +93,7 @@ export default {
       padding-top: 5vh;
       padding-left: 3vh;
       margin-bottom: 20px;
-      .profile-photo {
+      .avatar {
         width: 70px;
         height: 70px;
         margin-right: 5vw;

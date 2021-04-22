@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const baseURL = "http://localhost:3000/life-notes-sharing/";
+const baseURL = "http://192.168.1.105:3000/life-notes-sharing/";
 
 const xhr = axios.create({
   baseURL,
@@ -17,5 +17,7 @@ xhr.interceptors.response.use(response => {
 }, error => {
   return Promise.reject(error)
 })
+
+axios.defaults.withCredentials = true;
 
 export default xhr;

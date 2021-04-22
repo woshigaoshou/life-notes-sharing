@@ -13,7 +13,7 @@ export default {
   retrieve(params) {
     return xhr.put(`${user}/retrieve`, params);
   },
-  uploadProfilePhoto(params) {
-    return xhr.post(`/upload/profilePhoto`, params);
+  uploadAvatar(params) {
+    return xhr.post(`${user}/upload/avatar`, params);
   }
 }
