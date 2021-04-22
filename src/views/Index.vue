@@ -60,7 +60,7 @@ export default {
   height: 100vh;
   /deep/ .navbar {
     position: absolute;
-    // bottom: -1px;
+    bottom: 0;
   }
 }
 </style>

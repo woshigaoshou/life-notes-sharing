@@ -8,7 +8,8 @@
       @click="itemClick(index)"
     >
       <i class="iconfont" :class="`icon${nav[index]['iconfont']}`"></i>
-      <router-link :to="`/index${nav[index]['path']}`" class="title">{{ item.title }}</router-link>
+      <span class="title">{{ item.title }}</span>
+      <!-- <router-link :to="`/index${nav[index]['path']}`" class="title">{{ item.title }}</router-link> -->
     </div>
     <!-- <slot></slot> -->
   </div>
@@ -37,6 +38,7 @@ export default {
   methods: {
     itemClick(index) {
       this.$emit("itemClick", this.nav[index], index);
+      this.$router.push({path: `/index${this.nav[index]['path']}`});
     }
   }
 };

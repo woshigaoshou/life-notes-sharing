@@ -3,17 +3,19 @@
     <div class="header">
       <div class="info">
         <div class="profile-photo">
-          <img src="../../assets/login.jpg">
+          <img src="../../assets/login.jpg" @click="selectPhoto">
+          <input type="file" ref="upload" @change="uploadProfilePhoto">
         </div>
         <div class="user-info">
-          <p>{{ 'userName' }}</p>
-          <p>{{ 'description' }}</p>
+          <p>{{ user.name }}</p>
+          <p>{{ `账号ID：${user._id}` }}</p>
         </div>
       </div>
+      <p style="padding-left: 3vh;">{{ `个人简介：${user.description}` }}</p>
       <div class="followers-info">
-        <span>{{ focus }}</span>
-        <span>{{ fans }}</span>
-        <span>{{ appreciates }}</span>
+        <span>{{ `${user.focus}\n关注` }}</span>
+        <span>{{ `${user.fans}\n粉丝` }}</span>
+        <span>{{ `${user.appreciates}\n获赞与收藏` }}</span>
       </div>
     </div>
     <div class="content">
@@ -32,6 +34,7 @@
 </template>
 
 <script>
+import Api from '@/api';
 import { mapGetters } from 'vuex';
 
 export default {
@@ -43,14 +46,25 @@ export default {
   },
   computed: {
     ...mapGetters('user', {
-      userName: 'GET_USER_NAME',
-      profilephoto: 'GET_USER_PROFILEPHOTO',
-      description: 'GET_USER_DESCRIPTION',
+      user: 'GET_USER_INFO',
     })
   },
   methods: {
     tabClick(index) {
       this.activeIndex = index;
+    },
+    uploadProfilePhoto() {
+      const params = {
+        name: this.user.name,
+        phoneNum: this.user.phoneNum,
+      };
+      Api.user.uploadProfilePhoto(params).then(res => {
+        console.log(res);
+        
+      });
+    },
+    selectPhoto() {
+      this.$refs.upload.click();
     },
   },
   created() {
@@ -72,8 +86,9 @@ export default {
     height: 30vh;
     .info {
       display: flex;
-      padding-top: 7vh;
-      padding-left: 5vh;
+      padding-top: 5vh;
+      padding-left: 3vh;
+      margin-bottom: 20px;
       .profile-photo {
         width: 70px;
         height: 70px;
@@ -94,6 +109,17 @@ export default {
           &:nth-child(1) {
             margin-bottom: 5px;
           }
+        }
+      }
+    }
+    .followers-info {
+      display: flex;
+      text-align: center;
+      margin-left: 3vh;
+      span {
+        white-space: pre-line;
+        & + span {
+          margin-left: 5vw;
         }
       }
     }

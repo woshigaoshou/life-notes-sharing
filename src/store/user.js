@@ -1,25 +1,25 @@
-const state = {
+const storage = window.localStorage
+
+const userInfo = storage.getItem('userInfo') ? JSON.parse(storage.getItem('userInfo')) : {
   name: '',
+  _id: '',
   phoneNum: '',
   password: '',
   profilePhoto: '',
   description: '',
+};
+
+const state = {
+  userInfo,
 }
 
 const getters = {
-  GET_USER_NAME: state => state.name,
-  GET_USER_PROFILEPHOTO: state => state.profilePhoto,
-  GET_USER_DESCRIPTION: state => state.description,
+  GET_USER_INFO: state => state.userInfo,
 }
 
-const mutation = {
+const mutations = {
   SET_USER_INFO(state, payload) {
-    const {
-      name,
-      phoneNum,
-      password,
-      profilePhoto,
-    } = payload;
+    state.userInfo = payload;
   },
 }
 
@@ -28,5 +28,5 @@ export default {
   namespaced: true,
   state,
   getters,
-  mutation,
+  mutations,
 }
