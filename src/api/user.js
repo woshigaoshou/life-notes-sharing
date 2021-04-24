@@ -15,5 +15,14 @@ export default {
   },
   uploadAvatar(params) {
     return xhr.post(`${user}/upload/avatar`, params);
+  },
+  getFocusList(id) {
+    return xhr.get(`${user}/focusList/${id}`);
+  },
+  changeFocusStatus(params) {
+    return xhr.put(`${user}/changeFocusStatus`, params);
+  },
+  editDesc(params) {
+    return xhr.put(`${user}/editDesc`, params);
   }
 }

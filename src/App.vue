@@ -11,6 +11,8 @@ export default {
 </script>
 
 <style lang="scss">
+@import "@/css/base.scss";
+
 #app {
   height: 100vh;
   & > div {

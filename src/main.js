@@ -6,11 +6,14 @@ import store from './store'
 
 import Antd from 'ant-design-vue'
 import 'ant-design-vue/dist/antd.css'
-import './css/icon-font/iconfont.css';
+import '@/css/icon-font/iconfont.css';
 import scroll from './components/scroll';
+import '@/icons';
+
+import moment from 'moment';
+Vue.prototype.$moment = moment;
 
 Vue.use(Antd)
-
 Vue.component('scroll', scroll);
 
 Vue.prototype.$bus = new Vue();

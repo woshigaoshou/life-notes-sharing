@@ -12,7 +12,6 @@ const routes = [
   },
   {
     path: '/index',
-    name: 'Index',
     component: _import('Index'),
     children: [
       {
@@ -22,30 +21,36 @@ const routes = [
       {
         path: 'home',
         name: 'home',
-        component: _import('home/home'),
+        component: _import('home/index'),
       },
       {
         path: 'discover',
         name: 'discover',
-        component: _import('discover/discover'),
+        component: _import('discover/index'),
       },
       {
         path: 'message',
         name: 'message',
-        component: _import('message/message'),
+        component: _import('message/index'),
+        children: [],
       },
       {
         path: 'mine',
         name: 'mine',
-        component: _import('mine/mine'),
+        component: _import('mine/index'),
       },
     ],
   },
   {
     path: '/login',
     name: 'login',
-    component: _import('login'),
-  }
+    component: _import('Login'),
+  },
+  {
+    path: '/newFocus',
+    name: 'newFocus',
+    component: _import('message/newFocus/index'),
+  },
 ]
 
 const router = new VueRouter({

@@ -11,10 +11,14 @@
           <p>{{ `账号ID：${user._id}` }}</p>
         </div>
       </div>
-      <p style="padding-left: 3vh;">{{ `个人简介：${user.description}` }}</p>
+      <div class="description">
+        <p>个人简介：</p>  
+        <p v-if="!isEditDesc" @click="isEditDesc = true">{{ description }}</p>
+        <a-input v-else @blur="editDesc" v-model="description" />
+      </div>
       <div class="followers-info">
-        <span>{{ `${user.focus}\n关注` }}</span>
-        <span>{{ `${user.fans}\n粉丝` }}</span>
+        <span>{{ `${user.focus.length}\n关注` }}</span>
+        <span>{{ `${user.fans.length}\n粉丝` }}</span>
         <span>{{ `${user.appreciates}\n获赞与收藏` }}</span>
       </div>
     </div>
@@ -42,6 +46,8 @@ export default {
     return {
       tabs: ['笔记', '收藏', '赞过'],
       activeIndex: 0,
+      description: '',
+      isEditDesc: false,
     };
   },
   computed: {
@@ -52,6 +58,7 @@ export default {
   methods: {
     ...mapMutations('user', {
       setAvatar: 'UPDATE_USER_AVATAR',
+      setDesc: 'UPDATE_USER_DESC',
     }),
     tabClick(index) {
       this.activeIndex = index;
@@ -70,9 +77,34 @@ export default {
     selectPhoto() {
       this.$refs.upload.click();
     },
+    editDesc() {
+      this.isEditDesc = false;
+      const params = {
+        user_id: this.user._id,
+        desc: this.description,
+      }
+      Api.user.editDesc(params)
+        .then(res => {
+          if (res.status === 200) {
+            this.$notification.success({
+              message: '修改简介成功',
+              duration: 2,
+            })
+            this.setDesc(this.description);
+            window.localStorage.setItem('userInfo', this.user);          
+
+          } else {
+            this.$notification.success({
+              message: '修改简介失败，请稍后重试',
+              duration: 2,
+            })
+            this.description = this.user.description;
+          }
+        });
+    },
   },
   created() {
-
+    this.description = this.user.description;
   },
   mounted() {
 
@@ -87,11 +119,12 @@ export default {
   height: 89vh;
   background-color: rgba(128, 89, 89, 0.61);
   .header {
-    height: 30vh;
+    height: 34vh;
+    padding: 4vh 3vh;
     .info {
       display: flex;
-      padding-top: 5vh;
-      padding-left: 3vh;
+      // padding-top: 4vh;
+      // padding-left: 3vh;
       margin-bottom: 20px;
       .avatar {
         width: 70px;
@@ -116,10 +149,25 @@ export default {
         }
       }
     }
+    .description {
+      display: flex;
+      align-items: center;
+      height: 32px;
+      margin-bottom: 16px;
+      & > p:nth-child(1) {
+        width: 70px;
+      }
+      p {
+        margin: 0;
+      }
+      .ant-input, & > p + p {
+        flex: 1;
+      }
+    }
     .followers-info {
       display: flex;
       text-align: center;
-      margin-left: 3vh;
+      // margin-left: 3vh;
       span {
         white-space: pre-line;
         & + span {
@@ -130,7 +178,7 @@ export default {
   }
   .content {
     width: 100vw;
-    height: 60vh;
+    height: 56vh;
     position: absolute;
     bottom: 10vh;
     border-top-left-radius: 8px;

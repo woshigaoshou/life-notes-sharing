@@ -1,0 +1,23 @@
+p,h1,h2,h3,h4,h5,h6 {
+  margin: 0;
+  padding: 0;
+}
+
+.page-title {
+  position: relative;
+  height: 60px;
+  text-align: center;
+  line-height: 60px;
+  font-size: 16px;
+}
+
+.ant-page-header.ant-page-header-ghost {
+  z-index: 9999;
+  position: absolute;
+  left: 0;
+  padding: 14px 24px;
+  font-weight: normal;
+  .ant-page-header-heading-title {
+    font-size: 16px!important;
+  }
+}

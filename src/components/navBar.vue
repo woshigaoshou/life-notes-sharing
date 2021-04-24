@@ -53,7 +53,7 @@ export default {
   padding-bottom: 1vh;
   margin-top: 1vh;
   display: flex;
-  justify-content: space-evenly;
+  justify-content: space-around;
   text-align: center;
   font-size: 3.5vw;
   color: #000;

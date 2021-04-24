@@ -20,10 +20,16 @@ const getters = {
 const mutations = {
   SET_USER_INFO(state, payload) {
     state.userInfo = payload;
+    console.log(payload);
+    
+    storage.setItem('userInfo', JSON.stringify(payload));  
   },
   UPDATE_USER_AVATAR(state, payload) {
     state.userInfo.avatar = payload;
   },
+  UPDATE_USER_DESC(state, payload) {
+    state.userInfo.description = payload;
+  }
 }
 
 

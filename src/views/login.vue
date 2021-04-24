@@ -94,10 +94,10 @@ export default {
           const storage = window.localStorage;
           // 初始化信息存储到vuex
           this.setUserInfo(res.data);
-          storage.removeItem('userInfo');
-          storage.setItem('userInfo', JSON.stringify(res.data));          
+          // storage.removeItem('userInfo');
+          // storage.setItem('userInfo', JSON.stringify(res.data));          
 
-          this.$router.push({ name: 'Index' });
+          this.$router.push({ path: '/' });
         } else {
           this.$notification.error({
             message: '登录失败，请检查账号密码是否无误',
@@ -156,7 +156,7 @@ export default {
     color: #fff;
   }
   h2 {
-    padding: 10vh 0;
+    padding: 15vh 0 10vh;
     text-align: center;
     color: #fff;
   }
