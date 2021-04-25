@@ -14,9 +14,18 @@ export default {
     };
   },
   methods: {
+    getNotesList() {
+      const params = {
+        page: 1,
+      }
+      Api.note.getNotesList(params)
+        .then(res => {
 
+        })
+    },
   },
   created() {
+    this.getNotesList();
   },
   mounted() {
 
