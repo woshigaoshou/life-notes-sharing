@@ -1,5 +1,5 @@
 <template>
-  <div class="home">
+  <div class="index">
     <!-- <scroll> -->
       <keep-alive>
         <router-view />
@@ -55,11 +55,11 @@ export default {
 </script>
 
 <style lang='scss' scoped>
-.home {
+.index {
   position: relative;
   height: 100vh;
   /deep/ .navbar {
-    position: absolute;
+    position: fixed;
     bottom: 0;
   }
 }

@@ -45,15 +45,17 @@ export default {
     //   default: 0
     // }
   },
-  mounted() {
+  mounted() {  
     // console.log(this.$refs.wrapper);
-    this.scroll = new BScroll(this.$refs.wrapper, {
-      probeType: this.probeType,
-      pullUpLoad: this.pullUpLoad,
-      click: true,
-      scrollX: this.scrollX,
-      scrollY: !this.scrollX
-    });
+    setTimeout(() =>{
+      this.scroll = new BScroll(this.$refs.wrapper, {
+        probeType: this.probeType,
+        pullUpLoad: this.pullUpLoad,
+        click: true,
+        scrollX: this.scrollX,
+        scrollY: !this.scrollX
+      });
+    }, 800);
     // console.log(this.probeType);
     if (this.probeType === 2 || this.probeType === 3) {
       this.scroll.on("scroll", position => {
@@ -76,6 +78,6 @@ export default {
 </script>
 <style>
 .common-content {
-  padding-bottom: 8vh;
+  /* padding-bottom: 8vh; */
 }
 </style>

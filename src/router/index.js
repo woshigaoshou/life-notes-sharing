@@ -51,6 +51,11 @@ const routes = [
     name: 'newFocus',
     component: _import('message/newFocus/index'),
   },
+  {
+    path: '/noteDetail/:id',
+    name: 'noteDetail',
+    component: _import('home/noteDetail/index'),
+  }
 ]
 
 const router = new VueRouter({

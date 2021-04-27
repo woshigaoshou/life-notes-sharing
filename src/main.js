@@ -10,6 +10,9 @@ import '@/css/icon-font/iconfont.css';
 import scroll from './components/scroll';
 import '@/icons';
 
+import waterfall from 'vue-waterfall2'
+Vue.use(waterfall)
+
 import moment from 'moment';
 Vue.prototype.$moment = moment;
 
