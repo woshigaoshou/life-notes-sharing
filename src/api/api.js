@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const baseURL = "http://192.168.1.105:3000/life-notes-sharing/";
+const baseURL = "http://10.139.14.128:3000/life-notes-sharing/";
 
 const xhr = axios.create({
   baseURL,

@@ -1,5 +1,6 @@
 <template>
   <div class="home">
+    <a-input-search v-model="keyword" @search="handleSearch" placeholder="可搜索标题/内容" />
     <scroll
       class="home-scroll" 
     >
@@ -20,6 +21,7 @@ export default {
   data() {
     return {
       notes: [],
+      keyword: '',
     };
   },
   methods: {
@@ -34,6 +36,16 @@ export default {
     },
     toNoteDetail(id) {
       this.$router.push({ name: 'noteDetail', params: { id } });
+    },
+    handleSearch() {
+      const params = {
+        page: 1,
+        keyword: this.keyword,
+      }
+      Api.note.getNotesList(params)
+        .then(res => {
+          this.notes = res.data;
+        })
     },
   },
   created() {
@@ -52,8 +64,12 @@ export default {
   height: 89vh!important;
   padding-bottom: 2vh;
   // overflow: hidden;
+  .ant-input {
+    height: 32px;
+    margin: 16px 0;
+  }
   .home-scroll {
-    height: 87vh;
+    height: calc(87vh - 64px);
     overflow: hidden;
   }
   .vue-waterfall {
