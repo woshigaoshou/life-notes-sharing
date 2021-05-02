@@ -7,6 +7,8 @@ const userInfo = storage.getItem('userInfo') ? JSON.parse(storage.getItem('userI
   password: '',
   avatar: '',
   description: '',
+  fans: [],
+  focus: [],
 };
 
 const state = {
@@ -19,9 +21,7 @@ const getters = {
 
 const mutations = {
   SET_USER_INFO(state, payload) {
-    state.userInfo = payload;
-    console.log(payload);
-    
+    state.userInfo = payload;    
     storage.setItem('userInfo', JSON.stringify(payload));  
   },
   UPDATE_USER_AVATAR(state, payload) {

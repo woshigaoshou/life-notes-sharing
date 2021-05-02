@@ -52,6 +52,11 @@ const routes = [
     component: _import('message/newFocus/index'),
   },
   {
+    path: '/newAppreciates',
+    name: 'newAppreciates',
+    component: _import('message/newAppreciates/index'),
+  },
+  {
     path: '/noteDetail/:id',
     name: 'noteDetail',
     component: _import('home/noteDetail/index'),

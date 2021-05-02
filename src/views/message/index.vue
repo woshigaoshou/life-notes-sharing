@@ -45,13 +45,12 @@ export default {
   },
   methods: {
     iconPage(key) {
-      // if (key === 'appreciates') {
-
-      // } else if (key === 'focus') {
-        this.$router.push({ name: 'newFocus' });
-      // } else {
-
-      // }
+      const map = {
+        appreciates: 'newAppreciates',
+        focus: 'newFocus',
+        comment: 'comment',
+      }
+      this.$router.push({ name: map[key] });
     },
   },
   created() {

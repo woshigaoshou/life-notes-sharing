@@ -1,6 +1,13 @@
 <template>
   <div class="mine">
     <div class="header">
+      <a-popover class="btn" title="操作" trigger="click" placement="bottomRight">
+        <template slot="content">
+          <p @click="createNote">新建笔记</p>
+          <input type="file" v-show="false" ref="createNote">
+        </template>
+        <a-icon type="ellipsis" />
+      </a-popover>
       <div class="info">
         <div class="avatar">
           <img :src="user.avatar || '../../assets/avatar.jpg'" @click="selectPhoto">
@@ -19,7 +26,7 @@
       <div class="followers-info">
         <span>{{ `${user.focus.length}\n关注` }}</span>
         <span>{{ `${user.fans.length}\n粉丝` }}</span>
-        <span>{{ `${user.appreciates}\n获赞与收藏` }}</span>
+        <span>{{ `${appreciates}\n获赞与收藏` }}</span>
       </div>
     </div>
     <div class="content">
@@ -32,6 +39,37 @@
         >
           {{ item }}
         </span>
+      </div>
+      <div class="note-list">
+        <scroll
+          ref="scroll"
+          class="home-scroll" 
+        >
+          <div>
+            <waterfall :data="notes" :col="2" :gutterWidth="40">
+              <div class="note-item" v-for="(item, index) in notes" :key="index" @click="toNoteDetail(item._id)">
+                <img :src="item.image[0]" alt="">
+                <p>
+                  {{ item.title }}
+                </p>
+                <p>
+                  {{ item.author.name }}
+                  <span>
+                    <a-icon
+                      v-if="item.appreciates.some(item => item.user_id === user._id)"
+                      type="heart"
+                      theme="twoTone"
+                      two-tone-color="#eb2f96"
+                      @click.stop="thumbUp('cancel', item)"
+                    />
+                    <a-icon v-else type="heart" @click.stop="thumbUp('add', item)" />
+                    <i>{{ item.appreciates.length }}</i>
+                  </span>
+                </p>
+              </div>
+            </waterfall>
+          </div>
+        </scroll>
       </div>
     </div>
   </div>
@@ -48,6 +86,8 @@ export default {
       activeIndex: 0,
       description: '',
       isEditDesc: false,
+      notes: [],
+      appreciates: 0,
     };
   },
   computed: {
@@ -62,6 +102,25 @@ export default {
     }),
     tabClick(index) {
       this.activeIndex = index;
+      this.$refs.scroll && this.$refs.scroll.scrollTo(0, 0, 0);
+      Api.note.getClassifyList(index + 1, this.user._id)
+        .then(res => {
+          this.notes = res.data.map(item => ({
+            image: item.note_detail.note_image,
+            title: item.note_detail.title,
+            _id: item._id,
+            author: {
+              name: item.author_id.name,
+            },
+            appreciates: item.appreciates,
+          }));
+          if (index === 0) {
+            this.appreciates = this.notes.reduce((prev, current) => {
+              return prev + current.appreciates.length;
+            }, 0);
+          }
+        })
+      
     },
     uploadAvatar(e) {
       const fileData = e.target.files[0];
@@ -70,7 +129,6 @@ export default {
       params.append('phoneNum', this.user.phoneNum);
       
       Api.user.uploadAvatar(params).then(res => {
-        console.log(res);
         this.setAvatar(res.avatar);
       });
     },
@@ -102,9 +160,41 @@ export default {
           }
         });
     },
+    toNoteDetail(id) {
+      this.$router.push({ name: 'noteDetail', params: { id } });
+    },
+    thumbUp(type, data) {
+      const date = this.$moment().format('YYYY-MM-DD HH:mm');
+      const params = {
+        type,
+        note_id: data._id,
+        user_id: this.user._id,
+        date,
+      };
+      Api.note.thumbUp(params)
+        .then(res =>{
+          if (res.status === 200) {
+            if (type === 'add') {
+              data.appreciates.push({
+                user_id: this.user._id,
+                date,
+              });
+            } else {
+              data.appreciates = data.appreciates.filter(item => item.user_id !== this.user._id);
+            }
+          }
+        })
+    },
+    createNote() {
+      this.$refs.createNote.click();
+    },
   },
   created() {
     this.description = this.user.description;
+    this.tabClick(0);
+  },
+  deactivated() {
+    this.activeIndex = 0;
   },
   mounted() {
 
@@ -112,15 +202,31 @@ export default {
 };
 </script>
 
+<style lang="scss">
+.ant-popover {
+  p {
+    margin: 0!important;
+    &:hover {
+      background-color: #cfe8fc!important;
+    }
+  }
+}
+</style>
+
 <style lang="scss" scoped>
 @import "@/css/theme.scss";
 
 .mine {
-  height: 89vh;
+  height: 91vh;
   background-color: rgba(128, 89, 89, 0.61);
   .header {
     height: 34vh;
     padding: 4vh 3vh;
+    .anticon-ellipsis {
+      position: absolute;
+      top: 2vh;
+      right: 7vw;
+    }
     .info {
       display: flex;
       // padding-top: 4vh;
@@ -178,9 +284,11 @@ export default {
   }
   .content {
     width: 100vw;
-    height: 56vh;
+    height: 60vh;
+    display: flex;
+    flex-direction: column;
     position: absolute;
-    bottom: 10vh;
+    bottom: 9vh;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
     background-color: #fff;
@@ -199,6 +307,66 @@ export default {
       }
       .active {
         border-bottom: 1px solid $theme-color;
+      }
+    }
+    .note-list {
+      height: calc(100% - 2vh - 32px);
+      .home-scroll {
+        height: 100%;
+        overflow: hidden;
+      }
+      .vue-waterfall {
+        // display: flex;
+        // justify-content: space-between;
+        &-column {
+          // width: 43vw!important;
+          .note-item {
+            padding-bottom: 8px;
+            background-color: #fff;
+            border-radius: 3px;
+            overflow: hidden;
+            img {
+              width: 100%;
+              margin-bottom: 8px;
+            }
+            p {
+              position: relative;
+              padding: 0 20px;
+              line-height: 24px;
+              margin: 0;
+              &:nth-last-child(1) {
+                height: 24px;
+                display: flex;
+                align-items: center;
+                padding-right: 60px;
+                span {
+                  display: inline-block;
+                  position: absolute;
+                  // top: 5px;
+                  right: 32px;
+                  vertical-align: top;
+                  .anticon {
+                    margin-right: 4px;
+                    font-size: 16px;
+                  }
+                }
+              }
+            }
+            & + .note-item {
+              margin-top: 2vh;
+            }
+          }
+          &:nth-child(2) {
+            .note-item {
+              margin-right: 1vw;
+            }
+          }
+          &:nth-child(3) {
+            .note-item {
+              margin-left: 1vw;
+            }
+          }
+        }
       }
     }
   }

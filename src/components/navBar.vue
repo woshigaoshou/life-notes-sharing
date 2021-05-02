@@ -54,6 +54,7 @@ export default {
   margin-top: 1vh;
   display: flex;
   justify-content: space-around;
+  align-items: center;
   text-align: center;
   font-size: 3.5vw;
   color: #000;

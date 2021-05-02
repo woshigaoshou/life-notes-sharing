@@ -10,4 +10,19 @@ export default {
   getNoteDetail(id) {
     return xhr.get(`${note}/detail/${id}`);
   },
+  thumbUp(params) {
+    return xhr.put(`${note}/thumbup`, params);
+  },
+  collect(params) {
+    return xhr.put(`${note}/collect`, params);
+  },
+  getClassifyList(type, id) {
+    return xhr.get(`${note}/classifyList/${type}/${id}`);
+  },
+  getAppreciatesList(id) {
+    return xhr.get(`${note}/appreciatesList/${id}`);
+  },
+  delNote(id) {
+    return xhr.delete(`${note}/delNote/${id}`);
+  },
 }
