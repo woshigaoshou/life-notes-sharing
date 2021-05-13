@@ -6,7 +6,7 @@
     />
     <h2>登录后更精彩</h2>
     <div class="content" v-show="showModule === 'login'">
-      <a-input placeholder="请输入手机号码" v-model="loginForm['phoneNum']" />
+      <a-input placeholder="请输入账号" v-model="loginForm['phoneNum']" />
       <a-input-password placeholder="请输入密码" v-model="loginForm['password']" />
       <p class="tip">登录注册代表同意用户协议和隐私政策<i @click="showModule = 'retrieve'">找回密码</i></p>
       <a-button class="login-btn" @click="login">同意协议并登录</a-button>
@@ -14,12 +14,12 @@
     </div>
     <div class="register" v-show="showModule === 'register'">
       <a-input placeholder="请输入用户名" v-model="registerForm['name']" />
-      <a-input placeholder="请输入手机号码" v-model="registerForm['phoneNum']" />
+      <a-input placeholder="请输入账号" v-model="registerForm['phoneNum']" />
       <a-input-password placeholder="请输入密码" v-model="registerForm['password']" />
       <a-button class="login-btn" @click="register">注册账号</a-button>
     </div>
     <div class="retrieve" v-show="showModule === 'retrieve'">
-      <a-input placeholder="请输入手机号码" v-model="retrieveForm['phoneNum']" />
+      <a-input placeholder="请输入账号" v-model="retrieveForm['phoneNum']" />
       <a-input-password placeholder="请输入旧密码" v-model="retrieveForm['password']" />
       <a-input-password placeholder="请输入新密码" v-model="retrieveForm['newPassword']" />
       <a-button class="login-btn" @click="retrieve">找回密码</a-button>
@@ -66,11 +66,23 @@ export default {
       }
       
       Api.user.register(this.registerForm).then(res => {
-        this.$notification.success({
-          message: '注册成功',
-          duration: 2,
-        })
-        this.showModule = 'login';
+        if (res.status === 200) {
+          this.$notification.success({
+            message: '注册成功',
+            duration: 2,
+          })
+          this.showModule = 'login';
+          this.registerForm = {
+            name: '',
+            phoneNum: '',
+            password: '',
+          };
+        } else {
+          this.$notification.error({
+            message: res.message,
+            duration: 2,
+          })
+        }
       });
     },
     login() {      
@@ -94,13 +106,14 @@ export default {
           const storage = window.localStorage;
           // 初始化信息存储到vuex
           this.setUserInfo(res.data);
+          storage.setItem('token', res.token);
           // storage.removeItem('userInfo');
           // storage.setItem('userInfo', JSON.stringify(res.data));          
 
           this.$router.push({ path: '/' });
         } else {
           this.$notification.error({
-            message: '登录失败，请检查账号密码是否无误',
+            message: res.msg,
             duration: 2,
           })
         }
@@ -134,7 +147,7 @@ export default {
       if (this.showModule !== 'login') {
         this.showModule = 'login'
       } else {
-        this.$router.push({ name: 'Index' })
+        this.$router.push({ path: '/' })
       }
     },
   },

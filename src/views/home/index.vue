@@ -1,6 +1,13 @@
 <template>
-  <div class="home">
-    <a-input-search v-model="keyword" @search="handleSearch" placeholder="可搜索标题/内容" />
+  <div class="home" :class="{ hidden: user._id ? false : true }">
+    <!-- <a-input-search v-model="keyword" @search="handleSearch" placeholder="可搜索标题/内容" /> -->
+    <a-popover class="btn" title="操作" trigger="click" placement="bottomRight" v-model="showPopover">
+      <template slot="content">
+        <p @click="$router.push({ path: '/login' })">去登录</p>
+        <input type="file" v-show="false" ref="createNote">
+      </template>
+      <a-icon type="ellipsis" />
+    </a-popover>
     <scroll
       ref="scroll"
       class="home-scroll" 
@@ -42,6 +49,7 @@ export default {
     return {
       notes: [],
       keyword: '',
+      showPopover: false,
     };
   },
   computed: {
@@ -123,19 +131,48 @@ export default {
 };
 </script>
 
+<style lang="scss">
+.ant-popover {
+  p {
+    margin-bottom: 10px;
+    &:hover {
+      background-color: #cfe8fc!important;
+    }
+    &:nth-child(2) {
+      margin: 0!important;
+    }
+  }
+}
+</style>
+
 <style lang='scss' scoped>
+.hidden {
+  padding-top: 12vw!important;
+}
 .home /deep/ {
-  padding: 0 3vw;
+  padding: 2vw 3vw 0;
   background-color: #eee;
   height: 89vh!important;
   // padding-bottom: 2vh;
   // overflow: hidden;
+  .anticon-ellipsis {
+    position: absolute;
+    top: 2vh;
+    right: 7vw;
+  }
+  .longin-btn {
+    height: 32px;
+    margin-bottom: 2vw;
+    .ant-btn {
+      float: right;
+    }
+  }
   .ant-input {
     height: 32px;
     margin: 16px 0;
   }
   .home-scroll {
-    height: calc(87vh - 64px);
+    height: calc(89vh - 16px);
     overflow: hidden;
   }
   .vue-waterfall {
@@ -167,6 +204,7 @@ export default {
               position: absolute;
               // top: 5px;
               right: 32px;
+              bottom: 0;
               vertical-align: top;
               .anticon {
                 margin-right: 4px;

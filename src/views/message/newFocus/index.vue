@@ -11,7 +11,12 @@
         v-for="item in focusList"
         :key="item._id"
       >
-        <span class="avatar"><img :src="item.avatar" alt=""></span>
+        <span
+          class="avatar"
+          @click="$router.push({ name: 'userDetail', params:{ id: item._id } })"
+        >
+            <img :src="item.avatar" alt="">
+          </span>
         <span class="text">
           <p>{{ item.name }}</p>
           <p>{{ `开始关注你了   ${item.date}` }}</p>
@@ -25,7 +30,7 @@
 
 <script>
 import Api from '@/api';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapMutations } from 'vuex';
 
 export default {
   data() {
@@ -39,6 +44,9 @@ export default {
     }),
   },
   methods: {
+    ...mapMutations('user', {
+      updateFocus: 'UPDATE_USER_FOCUS',
+    }),
     fetchFocusList() {
       Api.user.getFocusList(this.user._id)
         .then(res => {
@@ -53,19 +61,29 @@ export default {
         });
     },
     changeFocusStatus(data) {
+      const date = this.$moment().format('YYYY-MM-DD');
       const params = {
         handler_id: this.user._id,
         isFocus: !data.bothWay,
         focus_id: data._id,
-        date: this.$moment().format('YYYY-MM-DD'),
+        date,
       }
       Api.user.changeFocusStatus(params)
         .then(res => {
           if (res.status === 200) {
             this.$notification.success({
-              message: res.data.bothWay ? '取消关注成功' : '关注成功',
+              message: res.data.bothWay ? '关注成功' : '取消关注成功',
               duration: 2,
             })
+            let newVal = [];
+            if (res.data.bothWay) {
+              this.updateFocus([...this.user.focus, {
+                id: data._id,
+                date,
+              }]);
+            } else {
+              this.updateFocus(this.user.focus.filter(item => item.id !== data._id));
+            }
             this.fetchFocusList();
           } else {
             this.$notification.error({

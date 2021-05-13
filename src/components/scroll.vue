@@ -25,7 +25,10 @@ export default {
     },
     getSaveY() {
       return this.scroll ? this.scroll.y : 0;
-    }
+    },
+    scrollToBottom(time = 0) {
+      this.scroll && this.scroll.scrollTo(0, this.scroll.maxScrollY, time);
+    },
   },
   props: {
     probeType: {

@@ -14,8 +14,9 @@ p,h1,h2,h3,h4,h5,h6 {
 .ant-page-header.ant-page-header-ghost {
   z-index: 9999;
   position: absolute;
+  top: 0;
   left: 0;
-  padding: 14px 16px;
+  padding: 12px 16px;
   font-weight: normal;
   .ant-page-header-heading-title {
     font-size: 16px!important;

@@ -29,6 +29,16 @@ const mutations = {
   },
   UPDATE_USER_DESC(state, payload) {
     state.userInfo.description = payload;
+  },
+  UPDATE_USER_FANS(state, payload) {
+    state.userInfo.fans = payload;
+    storage.setItem('userInfo', JSON.stringify(state.userInfo));  
+  },
+  UPDATE_USER_FOCUS(state, payload) {
+    state.userInfo.focus = payload;
+    console.log(payload);
+    
+    storage.setItem('userInfo', JSON.stringify(state.userInfo));
   }
 }
 

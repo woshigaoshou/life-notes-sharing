@@ -28,6 +28,28 @@ Vue.prototype.$bus = new Vue();
 
 Vue.config.productionTip = false
 
+router.beforeEach((to,from,next)=>{
+  const path = ['/login', '/index/home', '/noteDetail', '/index/mine']
+	if(to.path === '/' || path.some(item => to.path.includes(item))){
+    next();
+    return;
+  }
+  const token = window.localStorage.getItem("token");
+  
+	//本地获取token，如果没有就返回登录页面
+	if(token == null || token == undefined){
+    Vue.prototype.$notification.error({
+      message: '登录已过期，请重新登录',
+      duration: 2,
+    })
+    next('/login');
+    return;
+  }
+  console.log(1);
+  
+	next();
+});
+
 new Vue({
   router,
   store,

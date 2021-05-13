@@ -5,7 +5,10 @@
         title=" "
         @back="$router.back(-1)"
       />
-      <div class="avatar">
+      <div
+        class="avatar"
+        @click="$router.push({ name: 'userDetail', params:{ id: noteDetail.author_id._id } })"
+      >
         <img :src="noteDetail.author_id.avatar" alt="">
       </div>
       <i>{{ noteDetail.author_id.name }}</i>
@@ -22,13 +25,54 @@
         <a-icon type="ellipsis" />
       </a-popover>
     </div>
-    <swiper class="swiper" :banners="banners"></swiper>
-    <div class="content">
-      {{ noteDetail.note_detail.note_content }}
-    </div>
-    <div class="comment">
-      <a-input placeholder="说点什么..." />
-      <a-button type="primary">发送</a-button>
+    <scroll class="detail-scroll" :key="scrollKey">
+      <swiper class="swiper" :banners="banners"></swiper>
+      <div class="content">
+        {{ noteDetail.note_detail.note_content }}
+      </div>
+      <div class="comment">
+        <div style="margin: 10px;">{{ `共${comment.length}条评论` }}</div>
+        <div
+          class="list-item"
+          v-for="item in comment"
+          :key="item._id"
+        >
+          <span class="avatar"><img :src="item.avatar" alt=""></span>
+          <span class="text">
+            <p>
+              {{ item.user_name }}
+              <span style="float: right;">
+                <a-icon
+                  v-if="item.comment_appreciates.some(item => item === user._id)"
+                  type="heart"
+                  theme="twoTone"
+                  two-tone-color="#eb2f96"
+                  @click="thumbUpComment('remove', item)"
+                />
+                <a-icon
+                  v-else
+                  type="heart"
+                  @click="thumbUpComment('add', item)"
+                />
+                {{ item.comment_appreciates.length }}
+              </span>
+            </p>
+            <p>
+              {{ `${item.comment_content}\n${item.date}` }}
+              <a-icon
+                class="delete"
+                v-if="item.user_id === user._id"
+                type="delete"
+                @click="delComment(item)"
+              />
+            </p>
+          </span>
+        </div>
+      </div>
+    </scroll>
+    <div class="handle">
+      <a-input placeholder="说点什么..." v-model="commentText" />
+      <a-button type="primary" @click="emitComment">发送</a-button>
       <div class="icon">
         <a-icon
           v-if="noteDetail.appreciates.some(item => item.user_id === user._id)"
@@ -56,7 +100,7 @@
 <script >
 import Api from '@/api';
 import swiper from '@/components/swiper';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapMutations } from 'vuex';
 
 export default {
   name: "",
@@ -80,7 +124,19 @@ export default {
       },
       banners: [],
       focusList: [],
+      list: [],
+      comment: [],
+      commentText: '',
+      scrollKey: Math.random(),
     }
+  },
+  watch: {
+    comment: {
+      handler() {
+        this.scrollKey = Math.random();        
+      },
+      deep: true,
+    },
   },
   computed: {
     ...mapGetters('user', {
@@ -91,6 +147,9 @@ export default {
     },
   },
   methods: {
+    ...mapMutations('user', {
+      updateFocus: 'UPDATE_USER_FOCUS',
+    }),
     fetchNoteDetail() {
       Api.note.getNoteDetail(this.$route.params.id)
         .then(res => {
@@ -111,6 +170,20 @@ export default {
           }
         });
     },
+    fetchComment() {
+      Api.comment.getCommentList(this.$route.params.id)
+        .then(res => {
+          this.comment = res.data.list.sort((a,b) => {
+            if (a.comment_appreciates.length < b.comment_appreciates.length
+              || 
+              (a.comment_appreciates.length === b.comment_appreciates && this.$moment(a.date).isBefore(this.$moment(b.date)))
+              ) {
+              return 1;
+            }
+            return -1;
+          })
+        });
+    },
     changeFocusStatus(data) {
       const params = {
         handler_id: this.user._id,
@@ -125,7 +198,14 @@ export default {
               message: res.data.bothWay ? '关注成功' : '取消关注成功',
               duration: 2,
             })
+            let newVal = [];
+            if (res.data.bothWay) {
+              this.updateFocus([...this.user.focus, this.noteDetail.author_id._id]);
+            } else {
+              this.updateFocus(this.user.focus.filter(item => item !== this.noteDetail.author_id._id));
+            }
             this.fetchFocusList();
+            
           } else {
             this.$notification.error({
               message: '操作失败，请稍后重试',
@@ -154,6 +234,42 @@ export default {
               data.appreciates = data.appreciates.filter(item => item.user_id !== this.user._id);
             }
           }
+        })
+    },
+    thumbUpComment(type, data) {
+      const params = {
+        comment_id: data._id,
+        user_id: this.user._id,
+        type,
+      };
+      Api.comment.thumbUpComment(params)
+        .then(res => {
+          if (res.status === 200) {
+            if (type === 'add') {
+              data.comment_appreciates.push(this.user._id);
+            } else {
+              data.comment_appreciates = data.comment_appreciates.filter(item => item !== this.user._id);
+            }
+          }
+        })
+    },
+    delComment(data) {
+      Api.comment.delComment(data._id)
+        .then(res => {
+          if (res.status === 200) {
+            this.$notification.success({
+              message: '删除评论成功',
+              duration: 2,
+            })
+          } else {
+            this.$notification.success({
+              message: '删除评论失败',
+              duration: 2,
+            })
+          }
+        })
+        .finally(() => {
+          this.fetchComment();
         })
     },
     handleCollect(type, data) {
@@ -194,10 +310,46 @@ export default {
           }
         })
     },
+    getList() {
+      Api.note.getAppreciatesList(this.user._id)
+        .then(res => {
+          this.list = res.data.sort((a, b) => {
+            const result = this.$moment(a.date).isBefore(this.$moment(b.date));
+            return result ? 1 : -1;
+          });
+        })
+    },
+    emitComment() {
+      if (this.commentText === '') {
+        this.$notification.error({
+          message: '发送信息不能为空',
+          duration: 2,
+        });
+      } else {
+        const params = {
+          note_id: this.noteDetail._id,
+          user_id: this.user._id,
+          comment_content: this.commentText,
+          date: this.$moment().format('YYYY-MM-DD HH:mm'),
+        }
+        Api.comment.emitComment(params)
+          .then(res => {
+            console.log(res);
+            this.$notification.success({
+              message: '发送成功',
+              duration: 2,
+            });
+            this.commentText = '';
+            this.fetchComment();
+          })
+      }
+    },
   },
   async created() {
     await this.fetchFocusList();
     this.fetchNoteDetail();
+    this.fetchComment();
+    // this.getList();
   },
 }
 </script>
@@ -215,12 +367,20 @@ export default {
 
 <style lang="scss" scoped>
 .note-detail {
+  padding-top: 7vh;
+  padding-bottom: 32px;
   .top {
+    background-color: #fff;
+    z-index: 9;
+    width: 100%;
+    position: fixed;
+    top: 0;
     display: flex;
     align-items: center;
     padding: 0 45px;
     height: 7vh;
     .avatar {
+      z-index: 10000;
       width: 4vh;
       height: 4vh;
       border-radius: 50% 50%;
@@ -238,21 +398,95 @@ export default {
       right: 20px;
     }
   }
-  .swiper {
-    height: 60vh;
+  .detail-scroll {
+    height: calc(93vh - 34px);
     overflow: hidden;
+    .swiper {
+      height: 60vh;
+      overflow: hidden;
+    }
+    .content {
+      min-height: 40vh;
+      margin-top: 2vh;
+      padding: 0 2vw;
+    }
+    .comment {
+      border-top: 1px solid #ddd;
+      padding-bottom: 32px;
+      .list-item {
+        position: relative;
+        display: flex;
+        align-items: center;
+        height: 8vh;
+        padding: 2vh;
+        border-bottom: 1px solid #eee;
+        box-sizing: content-box;
+        .avatar {
+          display: inline-block;
+          width: 6vh;
+          height: 6vh;
+          margin: 0 3vw;
+          border-radius: 50% 50%;
+          overflow: hidden;
+          img {
+            width: 100%;
+            height: 100%;
+          }
+        }
+        .text {
+          position: relative;
+          flex: 1;
+          display: inline-block;
+          .delete {
+            position: absolute;
+            bottom: 5px;
+            right: 16px;
+          }
+          p {
+            display: flex;
+            align-items: center;
+            line-height: 3vh;
+            margin: 0;
+            white-space: pre-wrap;
+            &:nth-child(1) {
+              justify-content: space-between;
+              margin-bottom: 4px;
+            }
+            i {
+              color: #999;
+            }
+          }
+        }
+        .cover {
+          position: absolute;
+          right: 2vw;
+          display: inline-block;
+          width: 6vh;
+          height: 6vh;
+          margin: 0 3vw;
+          border-radius: 10px;
+          overflow: hidden;
+          img {
+            width: 100%;
+            height: 100%;
+          }
+        }
+      }
+    }
   }
-  .content {
-    margin-top: 2vh;
-    padding: 0 2vw;
-  }
-  .comment {
+
+
+  .handle {
+    // height: 34px;
     width: 100%;
-    position: absolute;
-    bottom: 0;
+    padding-left: 2vw;
+    padding: 4vw 0 5vw 2vw;
+    position: fixed;
+    bottom: 0px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    background-color: #fff;
     .ant-btn {
       margin-left: 12px;
       margin-right: 12px;

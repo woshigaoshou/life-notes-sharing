@@ -24,5 +24,8 @@ export default {
   },
   editDesc(params) {
     return xhr.put(`${user}/editDesc`, params);
-  }
+  },
+  getUserDetail(id) {
+    return xhr.get(`${user}/detail/${id}`);
+  },
 }

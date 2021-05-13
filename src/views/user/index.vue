@@ -1,32 +1,30 @@
 <template>
   <div class="mine">
     <div class="header">
-      <a-popover class="btn" title="操作" trigger="click" placement="bottomRight" v-model="showPopover">
-        <template slot="content">
-          <p @click="toCreateNote">新建笔记</p>
-          <p @click="logout">退出登录</p>
-          <input type="file" v-show="false" ref="createNote">
-        </template>
-        <a-icon type="ellipsis" />
-      </a-popover>
+      <div class="top">
+        <a-page-header
+          title=" "
+          @back="$router.back(-1)"
+        />
+        <a-icon type="message" @click="$router.push({ name: 'message', params: { id: $route.params.id } })" />
+      </div>
       <div class="info">
         <div class="avatar">
-          <img :src="user.avatar || '../../assets/avatar.jpg'" @click="selectPhoto">
-          <input type="file" ref="upload" @change="uploadAvatar">
+          <img :src="detail.avatar || '../../assets/avatar.jpg'">
+          <input type="file">
         </div>
         <div class="user-info">
-          <p>{{ user.name }}</p>
-          <p>{{ `账号ID：${user._id}` }}</p>
+          <p>{{ detail.name }}</p>
+          <p>{{ `账号ID：${detail._id}` }}</p>
         </div>
       </div>
       <div class="description">
         <p>个人简介：</p>  
-        <p v-if="!isEditDesc" @click="isEditDesc = true">{{ description }}</p>
-        <a-input v-else @blur="editDesc" v-model="description" />
+        <p>{{ detail.description }}</p>
       </div>
       <div class="followers-info">
-        <span>{{ `${user.focus.length}\n关注` }}</span>
-        <span>{{ `${user.fans.length}\n粉丝` }}</span>
+        <span>{{ `${detail.focus.length}\n关注` }}</span>
+        <span>{{ `${detail.fans.length}\n粉丝` }}</span>
         <span>{{ `${appreciates}\n获赞与收藏` }}</span>
       </div>
     </div>
@@ -73,50 +71,18 @@
         </scroll>
       </div>
     </div>
-    <a-drawer
-      placement="bottom"
-      :visible="showDrawer"
-      height="100%"
-      :closable="false"
-      @close="showDrawer = false"
-    >
-      <div class="drawer-title">
-        <span>新建笔记</span>
-        <a-button type="primary" @click="createNote">完成</a-button>
-      </div>
-      <div class="images">
-        <div
-          class="upload-text"
-          v-if="preview.length === 0 || preview.every(item => item === undefined)"
-          @click="$refs.uploadInput.click()">
-          <a-icon type="plus" style="font-size: 32px;"
-        />
-          Upload
-        </div>
-        <div v-else>
-          <span class="preview" v-for="(item, index) in preview" v-show="item !== undefined" :key="index">
-            <a-icon type="close" @click="deletePreview(index)"></a-icon>
-            <img :src="item">
-          </span>
-        </div>
-        <input type="file" name="note_images" @change="savePhoto" multiple v-show="false" ref="uploadInput">
-      </div>
-      <a-input v-model="note_title" placeholder="请输入笔记标题..." style="margin-bottom: 20px;" />
-      <a-textarea v-model="note_content" placeholder="请输入笔记内容..." :rows="16" />
-    </a-drawer>
   </div>
 </template>
 
 <script>
 import Api from '@/api';
-import { mapGetters, mapMutations } from 'vuex';
+import { mapGetters } from 'vuex';
 
 export default {
   data() {
     return {
       tabs: ['笔记', '收藏', '赞过'],
       activeIndex: 0,
-      description: '',
       isEditDesc: false,
       notes: [],
       note_content: '',
@@ -126,6 +92,10 @@ export default {
       files: [],
       preview: [],
       note_title: '',
+      detail: {
+        focus: [],
+        fans: [],
+      },
     };
   },
   computed: {
@@ -134,15 +104,16 @@ export default {
     })
   },
   methods: {
-    ...mapMutations('user', {
-      setAvatar: 'UPDATE_USER_AVATAR',
-      setDesc: 'UPDATE_USER_DESC',
-      setUserInfo: 'SET_USER_INFO',
-    }),
+    getUserDetail() {
+      Api.user.getUserDetail(this.$route.params.id)
+        .then(res => {
+          this.detail = res.data;
+        })
+    },
     tabClick(index) {
       this.activeIndex = index;
       this.$refs.scroll && this.$refs.scroll.scrollTo(0, 0, 0);
-      Api.note.getClassifyList(index + 1, this.user._id)
+      Api.note.getClassifyList(index + 1, this.$route.params.id)
         .then(res => {
           this.notes = res.data.map(item => ({
             image: item.note_detail.note_image,
@@ -160,44 +131,6 @@ export default {
           }
         })
       
-    },
-    uploadAvatar(e) {
-      const fileData = e.target.files[0];
-      const params = new FormData();
-      params.append('file', fileData);
-      params.append('phoneNum', this.user.phoneNum);
-      
-      Api.user.uploadAvatar(params).then(res => {
-        this.setAvatar(res.avatar);
-      });
-    },
-    selectPhoto() {
-      this.$refs.upload.click();
-    },
-    editDesc() {
-      this.isEditDesc = false;
-      const params = {
-        user_id: this.user._id,
-        desc: this.description,
-      }
-      Api.user.editDesc(params)
-        .then(res => {
-          if (res.status === 200) {
-            this.$notification.success({
-              message: '修改简介成功',
-              duration: 2,
-            })
-            this.setDesc(this.description);
-            window.localStorage.setItem('userInfo', this.user);          
-
-          } else {
-            this.$notification.success({
-              message: '修改简介失败，请稍后重试',
-              duration: 2,
-            })
-            this.description = this.user.description;
-          }
-        });
     },
     toNoteDetail(id) {
       this.$router.push({ name: 'noteDetail', params: { id } });
@@ -224,64 +157,10 @@ export default {
           }
         })
     },
-    toCreateNote() {
-      this.showDrawer = true;
-      this.showPopover = false;
-    },
-    savePhoto(e) {
-      this.files = e.target.files;
-      this.preview = [];
-      for(let obj of e.target.files) {
-        this.preview.push(URL.createObjectURL(obj));
-        // this.files.push(URL.createObjectURL(obj));
-      }
-      // this.files = e.target.files.map(photo => URL.createObjectURL(photo));
-    },
-    deletePreview(index) {
-      // this.files[index] = null;
-      // this.preview.splice(index, 1);
-      // this.preview[index] = undefined;
-      this.$set(this.preview, index, undefined);
-    },
-    createNote() {
-      const params = new FormData();
-      console.log(this.files.length);
-      
-      for(let i = 0;i < this.files.length;i++) {
-        if (!this.preview[i]) continue;
-        params.append('files', this.files[i]);
-      }
-      params.append('user_id', this.user._id);
-      params.append('title', this.note_title);
-      params.append('note_content', this.note_content);
-
-      Api.note.createNote(params)
-        .then(res => {
-          this.showDrawer = false;
-          this.files = {};
-          this.preview = [];
-          this.$router.push({ name: 'noteDetail', params: { id: res.data.note_id } });
-        })
-    },
-    logout() {
-      this.setUserInfo({
-        name: '',
-        _id: '',
-        phoneNum: '',
-        password: '',
-        avatar: '',
-        description: '',
-        fans: [],
-        focus: [],
-      });
-      localStorage.removeItem('userInfo');
-      localStorage.removeItem('token');
-      this.$router.push({ path: '/login' });
-    },
   },
   created() {
-    this.description = this.user.description;
     this.tabClick(0);
+    this.getUserDetail();
   },
   deactivated() {
     this.activeIndex = 0;
@@ -293,62 +172,8 @@ export default {
 </script>
 
 <style lang="scss">
+.ant-page-header {
 
-.ant-popover {
-  p {
-    margin-bottom: 10px!important;
-    &:hover {
-      background-color: #cfe8fc!important;
-    }
-    &:nth-child(2) {
-      margin: 0!important;
-    }
-  }
-}
-.ant-drawer {
-  .drawer-title {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2vh;
-  }
-  .images {
-    width: 100%;
-    padding-left: 2vw;
-    margin-bottom: 3vh;
-    .upload-text {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      width: 128px;
-      height: 128px;
-      font-size: 18px;
-      color: #999999;
-      background-color: #fafafa;
-    }
-    .preview {
-      position: relative;
-      display: inline-block;
-      width: 25vw;
-      height: 25vw;
-      border-radius: 5px;
-      margin-bottom: 4vh;
-      margin-right: 3vw;
-      &:nth-child(3n) {
-        margin-right: 0;
-      }
-      .anticon-close {
-        position: absolute;
-        top: 0;
-        right: 0;
-      }
-      img {
-        width: 100%;
-        height: 100%;
-      }
-    }
-  }
 }
 </style>
 
@@ -360,11 +185,12 @@ export default {
   background-color: rgba(128, 89, 89, 0.61);
   .header {
     height: 34vh;
-    padding: 4vh 3vh;
-    .anticon-ellipsis {
+    padding: 6vh 3vh 2vh;
+    .anticon-message {
       position: absolute;
-      top: 2vh;
+      top: 20px;
       right: 7vw;
+      font-size: 5vw;
     }
     .info {
       display: flex;
@@ -423,11 +249,11 @@ export default {
   }
   .content {
     width: 100vw;
-    height: 60vh;
+    height: 66vh;
     display: flex;
     flex-direction: column;
     position: absolute;
-    bottom: 9vh;
+    bottom: 0;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
     background-color: #fff;
@@ -450,6 +276,7 @@ export default {
     }
     .note-list {
       height: calc(100% - 2vh - 32px);
+      padding: 0 12px;
       .home-scroll {
         height: 100%;
         overflow: hidden;

@@ -25,4 +25,11 @@ export default {
   delNote(id) {
     return xhr.delete(`${note}/delNote/${id}`);
   },
+  createNote(params) {
+    return xhr.post(`${note}/createNote`, params, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
 }
